@@ -58,16 +58,17 @@ func (p *Parser) ParseEntity(ctx context.Context, entity Entity) (dsEntity datas
 
 	// Values
 	for name, val := range entity {
-		var prop *datastore.Property
-		prop, err = p.parseProperty(ctx, name, val)
-		if err != nil {
-			return
-		}
-		if IsKeyValue(prop) {
+		if IsKeyValueName(name) {
 			if key, err = p.parseKeyList(ctx, val); err != nil {
 				return
 			}
+
 		} else {
+			var prop *datastore.Property
+			prop, err = p.parseProperty(ctx, name, val)
+			if err != nil {
+				return
+			}
 			props = append(props, *prop)
 			if key == nil && name == p.kindData.Scheme.Key {
 				if key, err = p.parseKeyList(ctx, prop.Value); err != nil {
@@ -79,12 +80,7 @@ func (p *Parser) ParseEntity(ctx context.Context, entity Entity) (dsEntity datas
 
 	// Default Values
 	for name, val := range d.Default {
-		var prop *datastore.Property
-		prop, err = p.parseProperty(ctx, name, val)
-		if err != nil {
-			return
-		}
-		if IsKeyValue(prop) {
+		if IsKeyValueName(name) {
 			err = fmt.Errorf("%v can not be as default value", name)
 			return
 		}
@@ -106,14 +102,6 @@ func (p *Parser) ParseEntity(ctx context.Context, entity Entity) (dsEntity datas
 		Key:        key,
 		Properties: props,
 	}, nil
-}
-
-func IsKeyValue(prop *datastore.Property) bool {
-	if _, ok := prop.Value.(*datastore.Key); ok {
-		return true
-	} else {
-		return false
-	}
 }
 
 func (p *Parser) parseKeyList(ctx context.Context, val interface{}) (key *datastore.Key, err error) {
