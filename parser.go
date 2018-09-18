@@ -71,7 +71,7 @@ func (p *Parser) ParseEntity(ctx context.Context, entity Entity) (dsEntity datas
 			}
 			props = append(props, *prop)
 			if key == nil && name == p.kindData.Scheme.Key {
-				if key, err = p.parseKeyList(ctx, prop.Value); err != nil {
+				if key, err = p.parseKeyList(ctx, val); err != nil {
 					return
 				}
 			}
